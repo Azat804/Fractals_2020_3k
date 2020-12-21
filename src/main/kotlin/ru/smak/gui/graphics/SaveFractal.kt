@@ -47,18 +47,32 @@ object SaveFractal {
         g.drawImage(img, 0, 0, null)
         g.dispose()
         // Сохраняем изображение из буфера в файл
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY)
-        val result = fileChooser.showSaveDialog(fileChooser)
-        if (result == JFileChooser.APPROVE_OPTION) {
-            var str = fileChooser.getSelectedFile().absolutePath
-            if (fileChooser.getSelectedFile().extension == "") {
-                if (fileChooser.fileFilter.description != "All Files") str = str + "." + fileChooser.fileFilter.description else str += ".jpg"
+        var flag = 0
+        while (flag == 0) {
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY)
+            val result = fileChooser.showSaveDialog(fileChooser)
+            if (result == JFileChooser.APPROVE_OPTION) {
+                var str = fileChooser.getSelectedFile().absolutePath
+                if (fileChooser.getSelectedFile().extension == "") {
+                    if (fileChooser.fileFilter.description != "All Files") str = str + "." + fileChooser.fileFilter.description else str += ".jpg"
+                    flag = 1
+                }
+                if (File(str).exists()) {
+                    val yesno = JOptionPane.showConfirmDialog(fileChooser,
+                            "Файл '" + str +
+                                    "'уже существет. Заменить его?", "Подтвердите действие", JOptionPane.YES_NO_OPTION)
+                    flag = if (yesno == 0) 1 else 0
+                }
+                if (flag == 1) {
+                    val outputFile = File(str)
+                    ImageIO.write(bufferedImage, "PNG", outputFile)
+                    JOptionPane.showMessageDialog(fileChooser,
+                            "Файл '" + str +
+                                    "' сохранен")
+                }
+            } else {
+                break
             }
-            val outputFile = File(str)
-            ImageIO.write(bufferedImage, "PNG", outputFile)
-            JOptionPane.showMessageDialog(fileChooser,
-                    "Файл '" + str +
-                            "' сохранен")
         }
     }
 }
